@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  mongodb:
+    image: "mongo"
+  elasticsearch:
+    image: "elasticsearch:6.6.0"
+  kibana:
+    image: "kibana:6.6.0"
+    depends_on:
+      - "elasticsearch"
+    links:
+      - "elasticsearch"
+  node:
+    image: "node"
+    depends_on:
+      - "mongodb"
+      - "elasticsearch"
+    links:
+      - "mongodb"
+      - "elasticsearch"
+    working_dir: /home/node/app
+    # environment:
+      # - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - "8080:8080"
+      # - "8081:8081"
+    command: "npm run start"

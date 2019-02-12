@@ -1,0 +1,39 @@
+{
+  "name": "mwa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port 8081",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "start": "backend serve -w -h 0.0.0.0"
+  },
+  "dependencies": {
+    "@oudy/backend": "^1.0.2",
+    "@oudy/backend-component-entity": "^1.0.5",
+    "@oudy/backend-component-graphql": "^1.0.3",
+    "@oudy/elasticsearch": "^1.0.0",
+    "@oudy/entity-mongodb": "^1.0.8",
+    "@oudy/mongodb": "^1.0.4",
+    "cron": "^1.6.0",
+    "puppeteer": "^1.12.2",
+    "uikit": "^3.0.3",
+    "vue": "^2.5.22",
+    "vue-apollo": "^3.0.0-beta.11",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "graphql-tag": "^2.9.0",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "vue-cli-plugin-apollo": "^0.19.1",
+    "vue-template-compiler": "^2.5.21"
+  }
+}
