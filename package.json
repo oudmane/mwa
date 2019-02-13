@@ -16,10 +16,12 @@
     "@oudy/entity-mongodb": "^1.0.8",
     "@oudy/mongodb": "^1.0.4",
     "cron": "^1.6.0",
+    "echarts": "^4.1.0",
     "puppeteer": "^1.12.2",
     "uikit": "^3.0.3",
     "vue": "^2.5.22",
     "vue-apollo": "^3.0.0-beta.11",
+    "vue-echarts": "^4.0.1",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
