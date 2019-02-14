@@ -14,10 +14,10 @@ Promise.all([
 ]).then(
   () =>
     puppeteer.launch({
-      headless: false,
-      userDataDir: './userDataDir/',
+      // headless: false,
+      // userDataDir: './userDataDir/',
       args: [
-        // '--start-maximized',
+        '--no-sandbox',
       ],
       timeout: 0
       // devtools: true

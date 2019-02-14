@@ -17,10 +17,6 @@ class System {
       }
     )
   }
-  static async afterLoad(application, request, response, route, payload) {
-    response.setHeader('Access-Control-Allow-Origin', '*')
-    response.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  }
 }
 
 module.exports = System

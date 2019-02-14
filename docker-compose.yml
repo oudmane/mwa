@@ -26,4 +26,16 @@ services:
     ports:
       - "8080:8080"
       # - "8081:8081"
-    command: "npm run start"
+    command: "npm run dev"
+  fetch:
+    image: "node"
+    depends_on:
+      - "mongodb"
+      - "elasticsearch"
+    links:
+      - "mongodb"
+      - "elasticsearch"
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
+    command: "node fetch.js"
