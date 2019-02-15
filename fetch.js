@@ -5,7 +5,8 @@ const puppeteer = require('puppeteer'),
   Candidate = require('./types/Candidate'),
   {
     CronJob
-  } = require('cron')
+  } = require('cron'),
+  pubsub = require('./libraries/pubsub')
 
 // Wait for all drivers to connect
 Promise.all([
@@ -27,7 +28,7 @@ Promise.all([
         const categoriesTab = await browser.pages().then(pages => pages.shift()),
           categoryPage = await browser.newPage(),
           cronJob = new CronJob({
-            cronTime: '* * * * *',
+            cronTime: '0 * * * *',
             runOnInit: true,
             async onTick() {
 
@@ -60,6 +61,8 @@ Promise.all([
                     )
                 )
               )
+
+              const allChanges = []
 
               await categories.reduce(
                 (promise, category) =>
@@ -101,24 +104,62 @@ Promise.all([
                                   name, rtl, votes, image
                                 }).then(
                                   bind =>
-                                    bind.changed && candidate.save()
+                                    bind.changed //&& candidate.save()
                                 ).then(
-                                  () =>
-                                    ElasticSearch.connection.index({
-                                      index: 'changes',
-                                      type: '_doc',
-                                      body: {
-                                        candidate: id,
-                                        category: category.id,
-                                        timestamp: Date.now(),
-                                        change: candidate.votes - oldVotes,
-                                        votes: candidate.votes
+                                  () => ({
+                                    candidate: id,
+                                    category: category.id,
+                                    timestamp: Date.now(),
+                                    change: candidate.votes - oldVotes,
+                                    votes: candidate.votes
+                                  })
+                                ).then(
+                                  body => {
+                                    pubsub.publish(
+                                      body.candidate,
+                                      {
+                                        change: body.change,
+                                        votes: body.votes
                                       }
-                                    })
+                                    )
+                                    // ElasticSearch.connection.index({
+                                    //   index: 'changes',
+                                    //   type: '_doc',
+                                    //   body: {
+                                    //     candidate: id,
+                                    //     category: category.id,
+                                    //     timestamp: Date.now(),
+                                    //     change: candidate.votes - oldVotes,
+                                    //     votes: candidate.votes
+                                    //   }
+                                    // })
+                                    return body
+                                  }
                                 )
                               }
                             )
                         )
+                      ).then(
+                        // sum changes
+                        changes =>
+                          changes.reduce(
+                            (total, change) => ({
+                              change: total.change + change.change,
+                              votes: total.votes + change.votes
+                            }),
+                            {
+                              change: 0,
+                              votes: 0,
+                            }
+                          )
+                      ).then(
+                        change => {
+                          allChanges.push(change)
+                          pubsub.publish(
+                            category.id,
+                            change
+                          )
+                        }
                       )
 
                     }
@@ -126,6 +167,21 @@ Promise.all([
                 Promise.resolve()
               )
 
+              pubsub.publish(
+                'all',
+                allChanges.reduce(
+                  (total, change) => ({
+                    change: total.change + change.change,
+                    votes: total.votes + change.votes
+                  }),
+                  {
+                    change: 0,
+                    votes: 0,
+                  }
+                )
+              )
+
+              // dkhanna means we're done for this minute :D
               console.log('Daba dkhana')
 
             }

@@ -1,5 +1,15 @@
 <template>
   <div>
+    <div>
+      <div uk-grid>
+        <div class="uk-width-3-4">
+          <progress-chart/>
+        </div>
+        <div class="uk-width-1-4">
+          <beats-chart />
+        </div>
+      </div>
+    </div>
     <div class="uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l" uk-grid>
       <div v-for="category in categories.list" :key="category.id">
         <router-link
@@ -15,9 +25,15 @@
 
 <script>
 import gql from "graphql-tag";
+import progressChart from "../components/progressChart.vue";
+import beatsChart from "../components/beatsChart.vue";
 
 export default {
   name: "home",
+  components: {
+    progressChart,
+    beatsChart
+  },
   data() {
     return {
       categories: {

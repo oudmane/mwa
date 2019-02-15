@@ -12,6 +12,8 @@
 <script>
 import Vue from 'vue'
 import ECharts from 'vue-echarts'
+import "echarts/lib/component/legend";
+import "echarts/lib/component/tooltip";
 
 Vue.component('v-chart', ECharts)
 

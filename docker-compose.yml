@@ -4,6 +4,8 @@ services:
     image: "mongo"
   elasticsearch:
     image: "elasticsearch:6.6.0"
+  redis:
+    image: "redis"
   kibana:
     image: "kibana:6.6.0"
     depends_on:
@@ -17,9 +19,11 @@ services:
     depends_on:
       - "mongodb"
       - "elasticsearch"
+      - "redis"
     links:
       - "mongodb"
       - "elasticsearch"
+      - "redis"
     # working_dir: /home/node/app
     # environment:
       # - NODE_ENV=production
@@ -36,7 +40,9 @@ services:
     depends_on:
       - "mongodb"
       - "elasticsearch"
+      - "redis"
     links:
       - "mongodb"
       - "elasticsearch"
+      - "redis"
     command: "node fetch.js"
