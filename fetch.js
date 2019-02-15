@@ -28,7 +28,7 @@ Promise.all([
         const categoriesTab = await browser.pages().then(pages => pages.shift()),
           categoryPage = await browser.newPage(),
           cronJob = new CronJob({
-            cronTime: '0 * * * *',
+            cronTime: '* * * * *',
             runOnInit: true,
             async onTick() {
 
@@ -104,7 +104,7 @@ Promise.all([
                                   name, rtl, votes, image
                                 }).then(
                                   bind =>
-                                    bind.changed //&& candidate.save()
+                                    bind.changed && candidate.save()
                                 ).then(
                                   () => ({
                                     candidate: id,
@@ -122,17 +122,11 @@ Promise.all([
                                         votes: body.votes
                                       }
                                     )
-                                    // ElasticSearch.connection.index({
-                                    //   index: 'changes',
-                                    //   type: '_doc',
-                                    //   body: {
-                                    //     candidate: id,
-                                    //     category: category.id,
-                                    //     timestamp: Date.now(),
-                                    //     change: candidate.votes - oldVotes,
-                                    //     votes: candidate.votes
-                                    //   }
-                                    // })
+                                    ElasticSearch.connection.index({
+                                      index: 'changes',
+                                      type: '_doc',
+                                      body
+                                    })
                                     return body
                                   }
                                 )
