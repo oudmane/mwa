@@ -101,20 +101,20 @@ Promise.all([
                                   name, rtl, votes, image
                                 }).then(
                                   bind =>
-                                    bind.changed && candidate.save().then(
-                                      () =>
-                                        ElasticSearch.connection.index({
-                                          index: 'changes',
-                                          type: '_doc',
-                                          body: {
-                                            candidate: id,
-                                            category: category.id,
-                                            timestamp: Date.now(),
-                                            change: candidate.votes - oldVotes,
-                                            votes: candidate.votes
-                                          }
-                                        })
-                                    )
+                                    bind.changed && candidate.save()
+                                ).then(
+                                  () =>
+                                    ElasticSearch.connection.index({
+                                      index: 'changes',
+                                      type: '_doc',
+                                      body: {
+                                        candidate: id,
+                                        category: category.id,
+                                        timestamp: Date.now(),
+                                        change: candidate.votes - oldVotes,
+                                        votes: candidate.votes
+                                      }
+                                    })
                                 )
                               }
                             )
