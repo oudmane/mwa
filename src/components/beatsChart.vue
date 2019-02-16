@@ -69,6 +69,37 @@ export default {
           });
         }
       }
+    },
+    $subscribe: {
+      // When a tag is added
+      tags: {
+        query: gql`
+          subscription {
+            beatsData {
+              timestamp
+              sum
+            }
+          }
+        `,
+        // Reactive variables
+        variables() {
+          return {
+            type: true
+          };
+        },
+        // Result hook
+        result(message) {
+          // Let's update the local data
+          this.bar.xAxis.data.shift();
+          this.bar.series[0].data.shift();
+          this.bar.xAxis.data.push(
+            moment(message.data.beatsData.timestamp * 1000).format("h:mm:ss")
+          );
+          this.bar.series[0].data.push(message.data.beatsData.sum);
+          console.log(message.data.beatsData)
+          // this.$refs.chart.refresh()
+        }
+      }
     }
   }
 };

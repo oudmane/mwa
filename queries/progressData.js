@@ -5,6 +5,7 @@ const {
   GraphQLList
 } = require('@oudy/graphql'),
   ElasticSeatch = require('../libraries/ElasticSearch'),
+  ProgressDatum = require('../types/common/ProgressDatum'),
   moment = require('moment')
 
 module.exports = {
@@ -12,17 +13,6 @@ module.exports = {
     type: new GraphQLObjectType({
       name: 'ProgressData',
       fields() {
-        const ProgressDatum = new GraphQLObjectType({
-          name: 'ProgressDatum',
-          fields: {
-            timestamp: {
-              type: GraphQLInt,
-            },
-            sum: {
-              type: GraphQLInt
-            }
-          }
-        })
         return {
           data: {
             type: new GraphQLList(ProgressDatum)
@@ -32,11 +22,7 @@ module.exports = {
     }),
     resolve() {
       const now = moment().seconds(0),
-        before = moment().seconds(0).add(-1, 'days')
-      console.log({
-        gt: before.valueOf(),
-        lt: now.valueOf()
-      })
+        before = moment().seconds(0).add(-60, 'minutes')
       return ElasticSeatch.connection.search({
         index: 'changes',
         type: '_doc',

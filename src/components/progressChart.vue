@@ -31,7 +31,7 @@ export default {
           scale: true
         },
         grid: {
-          left: 0,
+          // left: 0,
           right: 0
         },
         tooltip: {},
@@ -70,6 +70,37 @@ export default {
             );
             this.line.series[0].data.push(datum.sum);
           });
+        }
+      }
+    },
+    $subscribe: {
+      // When a tag is added
+      tags: {
+        query: gql`
+          subscription {
+            progressData {
+              timestamp
+              sum
+            }
+          }
+        `,
+        // Reactive variables
+        variables() {
+          return {
+            type: true
+          };
+        },
+        // Result hook
+        result(message) {
+          // Let's update the local data
+          this.line.xAxis.data.shift();
+          this.line.series[0].data.shift();
+          this.line.xAxis.data.push(
+            moment(message.data.progressData.timestamp * 1000).format("h:mm:ss")
+          );
+          this.line.series[0].data.push(message.data.progressData.sum);
+          console.log(message.data.progressData)
+          // this.$refs.chart.refresh()
         }
       }
     }
