@@ -47,8 +47,8 @@ export default {
   apollo: {
     beatsData: {
       query: gql`
-        query {
-          beatsData {
+        query beatsData($category: ID, $candidate: ID) {
+          beatsData(category: $category, candidate: $candidate) {
             data {
               timestamp
               sum
@@ -56,6 +56,12 @@ export default {
           }
         }
       `,
+      variables() {
+        return {
+          category: this.$store.state.category,
+          candidate: this.$store.state.candidate
+        };
+      },
       manual: true,
       result({ data, loading }) {
         if (!loading) {
@@ -63,7 +69,7 @@ export default {
           this.bar.series[0].data = [];
           data.beatsData.data.forEach(datum => {
             this.bar.xAxis.data.push(
-              moment(datum.timestamp * 1000).format("h:mm:ss")
+              moment(datum.timestamp * 1000).format("HH:mm:ss")
             );
             this.bar.series[0].data.push(datum.sum);
           });
@@ -74,8 +80,8 @@ export default {
       // When a tag is added
       tags: {
         query: gql`
-          subscription {
-            beatsData {
+          subscription beatsData($category: ID, $candidate: ID) {
+            beatsData(category: $category, candidate: $candidate) {
               timestamp
               sum
             }
@@ -84,7 +90,8 @@ export default {
         // Reactive variables
         variables() {
           return {
-            type: true
+            category: this.$store.state.category,
+            candidate: this.$store.state.candidate
           };
         },
         // Result hook
@@ -93,10 +100,10 @@ export default {
           this.bar.xAxis.data.shift();
           this.bar.series[0].data.shift();
           this.bar.xAxis.data.push(
-            moment(message.data.beatsData.timestamp * 1000).format("h:mm:ss")
+            moment(message.data.beatsData.timestamp * 1000).format("HH:mm:ss")
           );
           this.bar.series[0].data.push(message.data.beatsData.sum);
-          console.log(message.data.beatsData)
+          console.log(message.data.beatsData);
           // this.$refs.chart.refresh()
         }
       }

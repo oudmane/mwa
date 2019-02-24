@@ -1,6 +1,12 @@
 <template>
-  <div class="progressData">
-    <chart class :options="line" ref="chart" autoresize/>
+  <div class="uk-card uk-card-primary uk-card-small uk-card-body">
+    <h3 class="uk-card-title">Votes last 24H</h3>
+    <div class="progressData">
+      <chart class :options="line" ref="chart" autoresize/>
+    </div>
+    <div v-if="busy" class="uk-position-bottom-right">
+      <span class="uk-text-muted">Loading...</span>
+    </div>
   </div>
 </template>
 <style>
@@ -19,8 +25,14 @@ export default {
   components: {
     chart: ECharts
   },
+  computed: {
+    busy() {
+      return this.$apollo.queries.progressData.loading;
+    }
+  },
   data() {
     return {
+      lastUpdate: "",
       line: {
         xAxis: {
           type: "category",
@@ -32,7 +44,7 @@ export default {
         },
         grid: {
           // left: 0,
-          right: 0
+          right: 20
         },
         tooltip: {},
         legend: {
@@ -47,11 +59,19 @@ export default {
       }
     };
   },
+  watch: {
+    line: {
+      deep: true,
+      handler() {
+        console.log("Hellooooo");
+      }
+    }
+  },
   apollo: {
     progressData: {
       query: gql`
-        query {
-          progressData {
+        query progressData($category: ID, $candidate: ID) {
+          progressData(category: $category, candidate: $candidate) {
             data {
               timestamp
               sum
@@ -59,14 +79,21 @@ export default {
           }
         }
       `,
+      variables() {
+        return {
+          category: this.$store.state.category,
+          candidate: this.$store.state.candidate
+        };
+      },
       manual: true,
       result({ data, loading }) {
+        console.log('loading', loading)
         if (!loading) {
           this.line.xAxis.data = [];
           this.line.series[0].data = [];
           data.progressData.data.forEach(datum => {
             this.line.xAxis.data.push(
-              moment(datum.timestamp * 1000).format("h:mm:ss")
+              moment(datum.timestamp * 1000).format("HH:mm:ss")
             );
             this.line.series[0].data.push(datum.sum);
           });
@@ -77,8 +104,8 @@ export default {
       // When a tag is added
       tags: {
         query: gql`
-          subscription {
-            progressData {
+          subscription progressData($category: ID, $candidate: ID) {
+            progressData(category: $category, candidate: $candidate) {
               timestamp
               sum
             }
@@ -87,7 +114,8 @@ export default {
         // Reactive variables
         variables() {
           return {
-            type: true
+            category: this.$store.state.category,
+            candidate: this.$store.state.candidate
           };
         },
         // Result hook
@@ -95,11 +123,13 @@ export default {
           // Let's update the local data
           this.line.xAxis.data.shift();
           this.line.series[0].data.shift();
-          this.line.xAxis.data.push(
-            moment(message.data.progressData.timestamp * 1000).format("h:mm:ss")
-          );
           this.line.series[0].data.push(message.data.progressData.sum);
-          console.log(message.data.progressData)
+          this.line.xAxis.data.push(
+            moment(message.data.progressData.timestamp * 1000).format(
+              "HH:mm:ss"
+            )
+          );
+          console.log(message.data.progressData);
           // this.$refs.chart.refresh()
         }
       }

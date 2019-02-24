@@ -9,10 +9,6 @@ const pubsub = require('../libraries/pubsub'),
   ProgressDatum = require('../types/common/ProgressDatum'),
   moment = require('moment')
 
-pubsub.subscribe('all', message => {
-  console.log('all', message)
-})
-
 module.exports = {
   beatsData: {
     type: BeatsDatum,

@@ -1,7 +1,6 @@
 const {
   GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
+  GraphQLID,
   GraphQLList
 } = require('@oudy/graphql'),
   ElasticSeatch = require('../libraries/ElasticSearch'),
@@ -20,44 +19,58 @@ module.exports = {
         }
       }
     }),
-    resolve() {
+    args: {
+      category: {
+        type: GraphQLID
+      },
+      candidate: {
+        type: GraphQLID
+      }
+    },
+    resolve(source, args) {
       const now = moment().seconds(0),
-        before = moment().seconds(0).add(-20, 'minutes')
+        before = moment().seconds(0).add(-20, 'minutes'),
+        must = [{
+          range: {
+            timestamp: {
+              gt: before.valueOf(),
+              lte: now.valueOf()
+            }
+          }
+        }];
+      ['category', 'candidate'].forEach(
+        key =>
+          args[key] && must.push({
+            term: {
+              [key]: {
+                value: args[key]
+              }
+            }
+          })
+      )
       return ElasticSeatch.connection.search({
         index: 'changes',
         type: '_doc',
         size: 0,
         body: {
-          "query": {
-            "bool": {
-              "must": [
-                {
-                  range: {
-                    timestamp: {
-                      gt: before.valueOf(),
-                      lt: now.valueOf()
-                    }
-                  }
-                }
-              ],
-              "must_not": [
-
-              ]
+          query: {
+            bool: {
+              must
             }
           },
-          "aggs": {
-            "votes": {
-              "date_histogram": {
-                "field": "timestamp",
-                "interval": "minute",
-                "order": {
-                  "_key": "asc"
+          aggs: {
+            votes: {
+              date_histogram: {
+                field: "timestamp",
+                interval: "minute",
+                order: {
+                  _key: "asc"
                 }
               },
-              "aggs": {
-                "sum": {
-                  "sum": {
-                    "field": "change"
+              aggs: {
+                sum: {
+                  sum: {
+                    field: "change"
                   }
                 }
               }

@@ -1,23 +1,33 @@
 <template>
   <div>
     <div>
-      <div uk-grid>
-        <div class="uk-width-3-4">
-          <progress-chart/>
+      <div uk-grid class="uk-grid-small">
+        <div class="uk-width-1-1">
+          <div uk-grid>
+            <div class="uk-width-1-3">
+              <label>
+                <span class="uk-form-label">Category</span>
+                <select class="uk-select" v-model="$store.state.category">
+                  <option value="">All categories</option>
+                  <option
+                    v-for="category in categories.list"
+                    :key="category.id"
+                    :value="category.id"
+                  >{{category.name}}</option>
+                </select>
+              </label>
+            </div>
+          </div>
         </div>
-        <div class="uk-width-1-4">
-          <beats-chart />
+        <div class="uk-width-2-3@m uk-width-3-4@l">
+          <progress-chart ref="progress"/>
         </div>
-      </div>
-    </div>
-    <div class="uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l" uk-grid>
-      <div v-for="category in categories.list" :key="category.id">
-        <router-link
-          class="uk-display-block uk-card uk-card-primary uk-card-small uk-card-body uk-text-center"
-          :to="'/category/'+category.id"
-        >
-          <h4 class="uk-margin-remove">{{category.name}}</h4>
-        </router-link>
+        <div class="uk-width-1-3@m uk-width-1-4@l">
+          <div class="uk-card uk-card-primary uk-card-small uk-card-body">
+            <h3 class="uk-card-title">Votes last 10mins</h3>
+            <beats-chart ref="beats"/>
+          </div>
+        </div>
       </div>
     </div>
   </div>
