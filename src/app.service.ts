@@ -18,9 +18,9 @@ export class AppService {
     prefixUrl: 'https://vote.marocwebawards.com',
     http2: true,
     agent: {
-      http2: new Agent(),
+      // http2: new Agent(),
     },
-    cookieJar: new CookieJar(),
+    // cookieJar: new CookieJar(),
     headers: {
       'user-agent': 'Ayoub Oudmane (Monitoring; +https://oudmane.me)',
     },
@@ -30,10 +30,11 @@ export class AppService {
       }
     },
     // hooks: {
-    //   afterResponse: [
-    //     (response) => {
-    //       console.log(response.timings);
-    //       return response;
+    //   beforeRequest: [
+    //     (options) => {
+    //       // options.url.pathname
+    //       // console.log(options.url.pathname);
+    //       // return response;
     //     },
     //   ],
     // },
@@ -83,7 +84,7 @@ export class AppService {
   @Process({ concurrency: 10 })
   async fetchCategory(job: Job<Category>) {
     console.log('fetchCategory', job.data);
-    const candidatures = await this.html(`category/${job.data.id}`).then(
+    const candidatures = await this.html(`category/${job.data.id}-${Date.now()}`).then(
       ($) => {
         const list = $('.candidature')
           .map((i, candidature) => ({

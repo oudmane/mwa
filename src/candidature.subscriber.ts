@@ -26,13 +26,15 @@ export class CandidatureSubscriber
         id: event.entity.id,
         category: event.entity.category,
         votes: event.entity.votes,
-        change: event.entity.votes - event.databaseEntity.votes,
-        timestamp: new Date(),
+        change: event.entity.votes - event.databaseEntity.votes
     }
     console.log(body)
     this.elasticsearch.index({
         index: 'mwa_log',
-        body
+        body: {
+          ...body,
+          timestamp: new Date(),
+        }
     })
   }
 }
