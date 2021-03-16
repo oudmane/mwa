@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  mysql:
+    container_name: "mwa_mysql"
+    image: "mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "toor"
+  elasticsearch:
+    container_name: "mwa_elasticsearch"
+    image: "elasticsearch:7.11.1"
+  service:
+    container_name: "mwa_service"
+    image: "node"
