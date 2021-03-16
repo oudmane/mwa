@@ -11,3 +11,13 @@ services:
   service:
     container_name: "mwa_service"
     image: "node"
+    working_dir: /app
+    links:
+      - mysql
+      - elasticsearch
+    depends_on:
+      - mysql
+      - elasticsearch
+    volumes:
+      - ./:/app
+    command: "tail -f /dev/null"
