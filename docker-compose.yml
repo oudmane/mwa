@@ -5,6 +5,9 @@ services:
     image: "mysql"
     environment:
       MYSQL_ROOT_PASSWORD: "toor"
+  redis:
+    container_name: "mwa_redis"
+    image: "redis"
   elasticsearch:
     container_name: "mwa_elasticsearch"
     image: "elasticsearch:7.11.1"
@@ -14,9 +17,11 @@ services:
     working_dir: /app
     links:
       - mysql
+      - redis
       - elasticsearch
     depends_on:
       - mysql
+      - redis
       - elasticsearch
     volumes:
       - ./:/app

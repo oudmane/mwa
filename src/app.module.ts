@@ -13,7 +13,7 @@ import { Category } from './category.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'mysql',
       port: 3306,
       username: 'root',
       password: 'toor',
@@ -26,7 +26,7 @@ import { Category } from './category.entity';
     BullModule.forRoot({
       prefix: 'bull',
       redis: {
-        host: 'localhost',
+        host: 'redis',
         port: 6379,
         keyPrefix: 'mwa'
       },
@@ -44,7 +44,7 @@ import { Category } from './category.entity';
       },
     }),
     ElasticsearchModule.register({
-      node: 'http://localhost:9200'
+      node: 'http://elasticsearch:9200'
     })
   ],
   controllers: [AppController],
