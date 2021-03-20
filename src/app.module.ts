@@ -34,13 +34,13 @@ import { Category } from './category.entity';
     BullModule.registerQueue({
       name: 'crawl',
       defaultJobOptions: {
-        attempts: 5,
+        // attempts: 1,
         removeOnComplete: true,
         removeOnFail: true,
-        backoff: {
-          type: 'exponential',
-          delay: 1000 * 3,
-        },
+        // backoff: {
+        //   type: 'exponential',
+        //   delay: 1000 * 3,
+        // },
       },
     }),
     ElasticsearchModule.register({
