@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Candidature } from './candidature.entity';
 import { Category } from './category.entity';
 import { Cron, Timeout } from '@nestjs/schedule';
@@ -18,17 +18,17 @@ export class AppService {
     prefixUrl: 'https://vote.marocwebawards.com',
     http2: true,
     agent: {
-      // http2: new Agent(),
+      http2: new Agent(),
     },
     // cookieJar: new CookieJar(),
     headers: {
       'user-agent': 'Ayoub Oudmane (Monitoring; +https://oudmane.me)',
     },
-    searchParams: {
-      get _() {
-        return Date.now()
-      }
-    },
+    // searchParams: {
+    //   get _() {
+    //     return Date.now()
+    //   }
+    // },
     // hooks: {
     //   beforeRequest: [
     //     (options) => {
@@ -40,6 +40,8 @@ export class AppService {
     // },
   });
   constructor(
+    @Inject(Connection)
+    private connection: Connection,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     @InjectRepository(Candidature)
@@ -56,10 +58,10 @@ export class AppService {
 
   @Timeout(0)
   start() {
-    this.fetchCategories();
+    // this.fetchCategories();
   }
 
-  @Cron('45 * * * * *')
+  @Cron('*/5 * * * * *')
   async fetchCategories() {
     console.log('fetchCategories');
     const categories = await this.html('').then(($) => {
@@ -83,7 +85,8 @@ export class AppService {
 
   @Process({ concurrency: 10 })
   async fetchCategory(job: Job<Category>) {
-    console.log('fetchCategory', job.data);
+    const category = this.categoryRepository.create(job.data)
+    console.log('fetchCategory', job.data, category);
     const candidatures = await this.html(`category/${job.data.id}-${Date.now()}`).then(
       ($) => {
         const list = $('.candidature')
@@ -91,7 +94,7 @@ export class AppService {
             id: parseInt(
               $(candidature).find('a').attr('href').match(/\d+$/)[0],
             ),
-            category: job.data.id,
+            category: category,
             name: $(candidature).find('h2').text(),
             user: $(candidature).find('span').text(),
             votes: parseInt($(candidature).find('.votenbr').text())
@@ -101,5 +104,14 @@ export class AppService {
       },
     );
     await this.candidatureRepository.save(candidatures); //.then(console.table)
+  }
+
+  all() {
+    return this.connection
+    .getRepository(Category)
+    .createQueryBuilder("category")
+    .leftJoinAndSelect("category.candidatures", "candidature")
+    .orderBy("candidature.votes", "DESC")
+    .getMany()
   }
 }

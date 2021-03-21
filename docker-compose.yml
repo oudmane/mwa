@@ -8,6 +8,9 @@ services:
   redis:
     container_name: "mwa_redis"
     image: "redis"
+  nchan:
+    container_name: "mwa_nchan"
+    image: "weseek/nginx-nchan"
   elasticsearch:
     container_name: "mwa_elasticsearch"
     image: "elasticsearch:7.11.1"
@@ -28,10 +31,14 @@ services:
       - mysql
       - redis
       - elasticsearch
+      - nchan
     depends_on:
       - mysql
       - redis
       - elasticsearch
+      - nchan
     volumes:
       - ./:/app
+    expose:
+      - 80
     command: "tail -f /dev/null"

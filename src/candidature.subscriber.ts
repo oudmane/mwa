@@ -6,6 +6,7 @@ import {
   UpdateEvent,
 } from 'typeorm';
 import { Candidature } from './candidature.entity';
+import got from 'got'
 
 @EventSubscriber()
 export class CandidatureSubscriber
@@ -22,9 +23,12 @@ export class CandidatureSubscriber
   }
 
   afterUpdate(event: UpdateEvent<Candidature>) {
+    if(event.entity.votes == event.databaseEntity.votes) {
+      return
+    }
     const body = {
         id: event.entity.id,
-        category: event.entity.category,
+        category: (event.entity as any).category.id,
         votes: event.entity.votes,
         change: event.entity.votes - event.databaseEntity.votes
     }
@@ -36,5 +40,14 @@ export class CandidatureSubscriber
           timestamp: new Date(),
         }
     })
+    got.post(
+      'http://nchan/pubsub',
+      {
+        json: {
+          ...body,
+          timestamp: new Date(),
+        }
+      }
+    )
   }
 }
