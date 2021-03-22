@@ -37,6 +37,7 @@ import { Category } from './category.entity';
         // attempts: 1,
         removeOnComplete: true,
         removeOnFail: true,
+        timeout: 4000,
         // backoff: {
         //   type: 'exponential',
         //   delay: 1000 * 3,

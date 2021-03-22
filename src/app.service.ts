@@ -9,6 +9,7 @@ import * as cheerio from 'cheerio';
 import { Job, Queue } from 'bull';
 import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Agent } from 'http2-wrapper';
+import * as HttpAgent from 'agentkeepalive';
 import { CookieJar } from 'tough-cookie';
 
 @Injectable()
@@ -17,18 +18,26 @@ export class AppService {
   request = got.extend({
     prefixUrl: 'https://vote.marocwebawards.com',
     http2: true,
+    // @ts-ignore
+    // lookup(hostname, options, callback) {
+    //   callback(null, '51.15.231.73', 4)
+    // },
     agent: {
-      http2: new Agent(),
+      http2: new Agent({
+        // timeout: 1000,
+      }),
+      // http: new HttpAgent(),
+      // https: new HttpAgent.HttpsAgent(),
     },
     // cookieJar: new CookieJar(),
     headers: {
       'user-agent': 'Ayoub Oudmane (Monitoring; +https://oudmane.me)',
     },
-    // searchParams: {
-    //   get _() {
-    //     return Date.now()
-    //   }
-    // },
+    searchParams: {
+      get _() {
+        return Date.now()
+      }
+    },
     // hooks: {
     //   beforeRequest: [
     //     (options) => {
@@ -53,7 +62,7 @@ export class AppService {
   html(url) {
     return this.request(url)
       .text()
-      .then((html) => cheerio.load(html));
+      .then(html => cheerio.load(html));
   }
 
   @Timeout(0)
@@ -61,7 +70,7 @@ export class AppService {
     // this.fetchCategories();
   }
 
-  @Cron('*/5 * * * * *')
+  @Cron('*/10 * * * * *')
   async fetchCategories() {
     console.log('fetchCategories');
     const categories = await this.html('').then(($) => {
@@ -83,12 +92,12 @@ export class AppService {
       .catch(console.error);
   }
 
-  @Process({ concurrency: 10 })
+  @Process({ concurrency: 30 })
   async fetchCategory(job: Job<Category>) {
     const category = this.categoryRepository.create(job.data)
-    console.log('fetchCategory', job.data, category);
-    const candidatures = await this.html(`category/${job.data.id}-${Date.now()}`).then(
+    const candidatures = await this.html(`category/${job.data.id}`).then(
       ($) => {
+        console.log('fetchCategory', job.data, category);
         const list = $('.candidature')
           .map((i, candidature) => ({
             id: parseInt(
